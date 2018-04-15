@@ -12,24 +12,27 @@ public:
     ~arrayList() {delete [] element;}                                           /* destructor                                   */
 
     /************ ADT method: *************************************************/
+    T&   get(int theIndex) const;
     bool empty() const {return listSize == 0;}
-    int size() const {return listSize;}
-    T& get(int theIndex) const;
-    int indexOf(const T& theElement) const;
+    int  size() const {return listSize;}
+    int  indexOf(const T& theElement) const;
 
     void erase(int theIndex);
     void insert(int theIndex, const T& theElement);
     void output(ostream& out) const;
 
     /************ Class custom: ***********************************************/
-    int capacity() const {return arrayLength;}
-    void reduceCapacity(int capacity = Max(10,arrayLength/2));                  /* reduce number of empty positions to 1/2      */
+    int  capacity() const {return arrayLength;}
+    void reduceCapacity(int capacity = -1);                                     /* decrease array size                          */
 
+    class iterator;                                                             /* add a iterator for class arraylist           */
+    iterator begin() {return iterator(element);}
+    iterator end()   {return iterator(element+listSize);}
 protected:
     void checkIndex(int theIndex) const;                                        /* if theIndex is invalid, throw illegal        */
-    T*  element;                                                                /* a 1D array to save the elements of liner list*/
-    int arrayLength;                                                            /* capacity of this 1D array                    */
-    int listSize;                                                               /* number of elements in the liner list         */
+    T*   element;                                                               /* a 1D array to save the elements of liner list*/
+    int  arrayLength;                                                           /* capacity of this 1D array                    */
+    int  listSize;                                                              /* number of elements in the liner list         */
 };
 
 
@@ -116,23 +119,26 @@ int arrayList<T>::indexOf(const T &theElement) const
     else
         return theIndex;
 }
+
 /***************************************************************************
 * Name          : reduceCapacity
-* Descirpyion   : reduce number of empty positions to 1/2
+* Descirpyion   : reduce number of empty positions and decrease array size
 * Input         : 1.capacity : capacity you want to change
 * Output        : none
 ***************************************************************************/
 template <class T>
 void arrayList<T>::reduceCapacity(int capacity)
 {
-    if(listSize < arrayLength/4)                                           /* only listSize < arrayLength/4 can reduce         */
+    if (capacity > 0)                                                       /* change array size to you want                    */
     {
-        T* tempArray = new T [arrayLength/2];
+        if (capacity < listSize)
+            throw illegalParameterValue("You will lose some element!");
+        T* tempArray = new T [capacity];
         copy(element, element+listSize, tempArray);
         delete [] element;
         element = tempArray;
         delete [] tempArray;
-        arrayLength = arrayLength/2;
+        arrayLength = capacity;
     }
 }
 
@@ -150,6 +156,10 @@ void arrayList<T>::erase(int theIndex)
                                                                               forward                                           */
 
     element[--listSize].~T();
+
+    if (listSize < arrayLength/4 )                                         /* when listSize < arrayLength/4 can reduce 1/2      */
+        reduceCapacity(Max(10, arrayLength/2));
+
 }
 
 /***************************************************************************
@@ -175,6 +185,54 @@ void arrayList<T>::insert(int theIndex, const T &theElement)
     element[theIndex] = theElement;
     listSize++;                                                            /* increase number of elements                        */
 }
+
+template <class T>
+class iterator
+{
+
+public:
+    /************* type define ******************************************/
+    typedef bidirectional_iterator_tag  iter_category;
+    typedef ptrdiff_t                   difference_type;
+    typedef T                           value_type;
+    typedef T*                          pointer;
+    typedef T&                          reference;
+
+    /*************** functions  ****************************************/
+    iterator(T* thePostion = 0) {position = thePostion;}                  /* constructor                                        */
+
+    T& operator * () const {return  *position;}                           /* repeated load * and  -> for iterator               */
+    T* operator-> () const {return &*position;}
+
+    iterator& operator ++(){++position; return *this;}                    /* repeated load forward self increase (++)           */
+    iterator  operator ++(int)                                            /* repeated load after the self increase (++)         */
+    {
+        iterator old = *this;
+        ++position;
+        return old;
+    }
+    iterator& operator --(){--position; return *this;}                     /* repeated load forward self reduction  (--)         */
+    iterator  operator --(int)                                             /* repeated load after the self increase (--)         */
+    {
+        iterator old = *this;
+        --position;
+        return old;
+    }
+
+    bool operator != (const iterator right) const
+    {
+        return position != right.position;
+    }
+    bool operator == (const iterator right) const
+    {
+        return position == right.position;
+    }
+
+protected:
+    T* position;
+};
+
+
 
 
 #endif // ARRAYLIST_H
