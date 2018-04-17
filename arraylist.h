@@ -100,7 +100,7 @@ void arrayList<T>::checkIndex(int theIndex) const
 template <class T>
 T& arrayList<T>::get(int theIndex) const
 {
-    checkIndex(theIndex);
+    checkIndex(theIndex);                                                  /* check if the index is illeagl                     */
     return element[theIndex];
 }
 

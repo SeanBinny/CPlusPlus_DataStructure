@@ -26,6 +26,7 @@ struct chainNode
 };
 
 
+/*************** Class definition ******************************************/
 template <class T>
 class chain : public linerList<T>
 {
@@ -51,8 +52,9 @@ protected:
     int listSize;                                                           /* number of elements in the linked list             */
 };
 
+
 template <class T>
-chain<T>::chain(int initialCapacity)
+chain<T>::chain(int initialCapacity)                                        /* initialCapacity has no real significance         */
 {
     if (initialCapacity < 1)
     {
@@ -69,43 +71,48 @@ chain<T>::chain(const chain<T>& theList)
 {
     listSize = theList.listSize;
 
+    /*********** situation : empty ****************************************/
     if (listSize == 0)
     {
         firstNode = NULL;
         return;
     }
 
-    chainNode<T>* sourceNode = theList.firstNode;
-    firstNode  = new chain<T>*(sourceNode->element);
-    sourceNode = sourceNode->next;
-    chainNode<T>* targetNode = firstNode;
+    /*********** sintuation : not empty ***********************************/
+    chainNode<T>* sourceNode = theList.firstNode;                          /* use source to pick up firstNode of theList         */
+    firstNode  = new chain<T>*(sourceNode->element);                       /* this List point to first node address              */
+    chainNode<T>* targetNode = firstNode;                                  /* use target to pick up firstNode of this list       */
 
+    sourceNode = sourceNode->next;                                         /* from now , source is more than target to the next  */
     while (sourceNode != NULL)
     {
-        targetNode->next = new chainNode<T>(sourceNode->element);
+        targetNode->next = new chainNode<T>(sourceNode->element);          /* use theList element to construct a node for this list
+                                                                              and put it as the next node                        */
         targetNode       = targetNode->next;
         sourceNode       = sourceNode->next;
     }
     targetNode->next = NULL;
 }
 
+
 template <class T>
 chain<T>::~chain()
 {
     while (firstNode != NULL)
     {
-        chainNode<T>* nextNode = firstNode->next;
+        chainNode<T>* nextNode = firstNode->next;                           /* delete all node                                   */
         delete firstNode;
         firstNode = nextNode;
     }
 }
 
+
 template <class T>
 chain<T>::get(int theIndex) const
 {
-    checkIndex(theIndex);
+    checkIndex(theIndex);                                                    /* check if the index is illeagl                    */
 
-    chainNode<T>* currentNode = firstNode;
+    chainNode<T>* currentNode = firstNode;                                   /* use target to pick up firstNode of this list     */
     for (int i = 0; i < theIndex; i++)
         currentNode = currentNode->next;
 
