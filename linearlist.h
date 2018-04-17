@@ -20,6 +20,8 @@ public:
     virtual void output(ostream& out) const = 0;                         /* insert the liner list into ostream 'out'            */
 };
 
+
+
 /***************************************************************************
 * Name          : changeLength1D
 * Descirpyion   : function to change a 1D array size

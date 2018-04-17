@@ -5,7 +5,7 @@
 
 template <class T>
 class arrayList : public linerList<T>
-{
+{   
 public:
     arrayList(int initialCapacity = 10);                                        /* constructor                                  */
     arrayList(const arrayList<T>&);                                             /* copy constructor                             */
@@ -28,6 +28,7 @@ public:
     class iterator;                                                             /* add a iterator for class arraylist           */
     iterator begin() {return iterator(element);}
     iterator end()   {return iterator(element+listSize);}
+
 protected:
     void checkIndex(int theIndex) const;                                        /* if theIndex is invalid, throw illegal        */
     T*   element;                                                               /* a 1D array to save the elements of liner list*/
