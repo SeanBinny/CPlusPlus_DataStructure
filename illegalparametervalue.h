@@ -9,7 +9,8 @@ class illegalParameterValue
 public:
     illegalParameterValue():
         message("Illegal parameter value") {}
-    illegalParameterValue(char* theMessage) {message = theMessage;}
+    illegalParameterValue(char*  theMessage) {message = theMessage;}
+    illegalParameterValue(string theMessage) {message = theMessage;}                        /* avoid prameter is not char*        */
 
     void outputMessage() {std::cout << message << endl;}
 
