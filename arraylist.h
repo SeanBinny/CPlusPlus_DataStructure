@@ -1,15 +1,16 @@
 #ifndef ARRAYLIST_H
 #define ARRAYLIST_H
 #include "linearlist.h"
+#include <iterator>
 #include <sstream>
 
 template <class T>
 class arrayList : public linerList<T>
 {   
 public:
-    arrayList(int initialCapacity = 10);                                        /* constructor                                  */
-    arrayList(const arrayList<T>&);                                             /* copy constructor                             */
-    ~arrayList() {delete [] element;}                                           /* destructor                                   */
+    arrayList(int initialCapacity = 10);                                       /* constructor                                   */
+    arrayList(const arrayList<T>&);                                            /* copy constructor                              */
+    ~arrayList() {delete [] element;}                                          /* destructor                                    */
 
     /************ ADT method: *************************************************/
     T&   get(int theIndex) const;
@@ -23,17 +24,17 @@ public:
 
     /************ Class custom: ***********************************************/
     int  capacity() const {return arrayLength;}
-    void reduceCapacity(int capacity = -1);                                     /* decrease array size                          */
+    void reduceCapacity(int capacity = -1);                                    /* decrease array size                           */
 
-    class iterator;                                                             /* add a iterator for class arraylist           */
+    class iterator;                                                            /* add a iterator for class arraylist            */
     iterator begin() {return iterator(element);}
     iterator end()   {return iterator(element+listSize);}
 
 protected:
-    void checkIndex(int theIndex) const;                                        /* if theIndex is invalid, throw illegal        */
-    T*   element;                                                               /* a 1D array to save the elements of liner list*/
-    int  arrayLength;                                                           /* capacity of this 1D array                    */
-    int  listSize;                                                              /* number of elements in the liner list         */
+    void checkIndex(int theIndex) const;                                       /* if theIndex is invalid, throw illegal         */
+    T*   element;                                                              /* a 1D array to save the elements of liner list */
+    int  arrayLength;                                                          /* capacity of this 1D array                     */
+    int  listSize;                                                             /* number of elements in the liner list          */
 };
 
 
@@ -130,7 +131,7 @@ int arrayList<T>::indexOf(const T &theElement) const
 template <class T>
 void arrayList<T>::reduceCapacity(int capacity)
 {
-    if (capacity > 0)                                                       /* change array size to you want                    */
+    if (capacity > 0)                                                      /* change array size to you want                     */
     {
         if (capacity < listSize)
             throw illegalParameterValue("You will lose some element!");
@@ -187,51 +188,77 @@ void arrayList<T>::insert(int theIndex, const T &theElement)
     listSize++;                                                            /* increase number of elements                        */
 }
 
+/***************************************************************************
+* Name          : output
+* Descirpyion   : circle to output the chain list
+* Input         : 1.out : object of ostream to output
+* Output        : none
+***************************************************************************/
 template <class T>
-class iterator
+void arrayList<T>::output(ostream &out) const                               /* In the original : (ostream &cout->out)    ??????? */
 {
+    copy(element, element+listSize, ostream_iterator<T>(out, "  "));
+}
 
-public:
-    /************* type define ******************************************/
-    typedef bidirectional_iterator_tag  iter_category;
-    typedef ptrdiff_t                   difference_type;
-    typedef T                           value_type;
-    typedef T*                          pointer;
-    typedef T&                          reference;
+/***************************************************************************
+* Name          : operator <<
+* Descirpyion   : repeated load <<
+* Input         : 1.out : object of ostream to output
+*               : 2.x   : class which can call '<<'
+* Output        : 1.out : for continuous call
+***************************************************************************/
+template <class T>
+ostream& operator <<(ostream& out, const arrayList<T>& x)
+{
+    x.output(out);
+    return out;
+}
 
-    /*************** functions  ****************************************/
-    iterator(T* thePostion = 0) {position = thePostion;}                  /* constructor                                        */
+//template <class T>
+//class iterator
+//{
 
-    T& operator * () const {return  *position;}                           /* repeated load * and  -> for iterator               */
-    T* operator-> () const {return &*position;}
+//public:
+//    /************* type define ******************************************/
+//    typedef bidirectional_iterator_tag  iter_category;
+//    typedef ptrdiff_t                   difference_type;
+//    typedef T                           value_type;
+//    typedef T*                          pointer;
+//    typedef T&                          reference;
 
-    iterator& operator ++(){++position; return *this;}                    /* repeated load forward self increase (++)           */
-    iterator  operator ++(int)                                            /* repeated load after the self increase (++)         */
-    {
-        iterator old = *this;
-        ++position;
-        return old;
-    }
-    iterator& operator --(){--position; return *this;}                     /* repeated load forward self reduction  (--)         */
-    iterator  operator --(int)                                             /* repeated load after the self increase (--)         */
-    {
-        iterator old = *this;
-        --position;
-        return old;
-    }
+//    /*************** functions  ****************************************/
+//    iterator(T* thePostion = 0) {position = thePostion;}                  /* constructor                                        */
 
-    bool operator != (const iterator right) const
-    {
-        return position != right.position;
-    }
-    bool operator == (const iterator right) const
-    {
-        return position == right.position;
-    }
+//    T& operator * () const {return  *position;}                           /* repeated load * and  -> for iterator               */
+//    T* operator-> () const {return &*position;}
 
-protected:
-    T* position;
-};
+//    iterator& operator ++(){++position; return *this;}                    /* repeated load forward self increase (++)           */
+//    iterator  operator ++(int)                                            /* repeated load after the self increase (++)         */
+//    {
+//        iterator old = *this;
+//        ++position;
+//        return old;
+//    }
+//    iterator& operator --(){--position; return *this;}                    /* repeated load forward self reduction  (--)         */
+//    iterator  operator --(int)                                            /* repeated load after the self increase (--)         */
+//    {
+//        iterator old = *this;
+//        --position;
+//        return old;
+//    }
+
+//    bool operator != (const iterator right) const
+//    {
+//        return position != right.position;
+//    }
+//    bool operator == (const iterator right) const
+//    {
+//        return position == right.position;
+//    }
+
+//protected:
+//    T* position;
+//};
 
 
 
@@ -242,15 +269,4 @@ protected:
 
 
 
-//template <class T>
-//void arrayList<T>::output(ostream &out) const    cout->out
-//{
-//    copy(element, element+listSize, ostream_interator<T>(cout, "  "));
-//}
 
-//template <class T>
-//ostream& operator <<(ostream& out, const arrayList<T>& x)
-//{
-//    x.output(out);
-//    return out;
-//}
