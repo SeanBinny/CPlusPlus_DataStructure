@@ -26,9 +26,9 @@ public:
     int  capacity() const {return arrayLength;}
     void reduceCapacity(int capacity = -1);                                    /* decrease array size                           */
 
-    class iterator;                                                            /* add a iterator for class arraylist            */
-    iterator begin() {return iterator(element);}
-    iterator end()   {return iterator(element+listSize);}
+    class arraylist_iterator;                                                  /* iterator is only a pointer for this structure */
+    arraylist_iterator begin() {return arraylist_iterator(element);}
+    arraylist_iterator end()   {return arraylist_iterator(element+listSize);}
 
 protected:
     void checkIndex(int theIndex) const;                                       /* if theIndex is invalid, throw illegal         */
@@ -214,51 +214,51 @@ ostream& operator <<(ostream& out, const arrayList<T>& x)
     return out;
 }
 
-//template <class T>
-//class iterator
-//{
+template <class T>
+class arraylist_iterator
+{
 
-//public:
-//    /************* type define ******************************************/
-//    typedef bidirectional_iterator_tag  iter_category;
-//    typedef ptrdiff_t                   difference_type;
-//    typedef T                           value_type;
-//    typedef T*                          pointer;
-//    typedef T&                          reference;
+public:
+    /************* type define ******************************************/
+    typedef bidirectional_iterator_tag  iter_category;
+    typedef ptrdiff_t                   difference_type;
+    typedef T                           value_type;
+    typedef T*                          pointer;
+    typedef T&                          reference;
 
-//    /*************** functions  ****************************************/
-//    iterator(T* thePostion = 0) {position = thePostion;}                  /* constructor                                        */
+    /*************** functions  ****************************************/
+    arraylist_iterator(T* thePostion = 0) {position = thePostion;}      /* constructor                                           */
 
-//    T& operator * () const {return  *position;}                           /* repeated load * and  -> for iterator               */
-//    T* operator-> () const {return &*position;}
+    T& operator * () const {return  *position;}                         /* repeated load * and  -> for iterator                  */
+    T* operator-> () const {return &*position;}
 
-//    iterator& operator ++(){++position; return *this;}                    /* repeated load forward self increase (++)           */
-//    iterator  operator ++(int)                                            /* repeated load after the self increase (++)         */
-//    {
-//        iterator old = *this;
-//        ++position;
-//        return old;
-//    }
-//    iterator& operator --(){--position; return *this;}                    /* repeated load forward self reduction  (--)         */
-//    iterator  operator --(int)                                            /* repeated load after the self increase (--)         */
-//    {
-//        iterator old = *this;
-//        --position;
-//        return old;
-//    }
+    arraylist_iterator& operator ++(){++position; return *this;}        /* repeated load forward self increase   (++)            */
+    arraylist_iterator  operator ++(int)                                /* repeated load after the self increase (++)            */
+    {
+        arraylist_iterator old = *this;
+        ++position;
+        return old;
+    }
+    arraylist_iterator& operator --(){--position; return *this;}        /* repeated load forward self reduction  (--)            */
+    arraylist_iterator  operator --(int)                                /* repeated load after the self increase (--)            */
+    {
+        arraylist_iterator old = *this;
+        --position;
+        return old;
+    }
 
-//    bool operator != (const iterator right) const
-//    {
-//        return position != right.position;
-//    }
-//    bool operator == (const iterator right) const
-//    {
-//        return position == right.position;
-//    }
+    bool operator != (const arraylist_iterator right) const
+    {
+        return position != right.position;
+    }
+    bool operator == (const arraylist_iterator right) const
+    {
+        return position == right.position;
+    }
 
-//protected:
-//    T* position;
-//};
+protected:
+    T* position;
+};
 
 
 

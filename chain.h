@@ -47,9 +47,9 @@ public:
     void output(ostream& out) const;
 
     /************ Class custom: ********************************************/
-    class iterator;                                                         /* add a iterator for class arraylist                */
-    iterator begin() {return iterator(firstNode);}
-    iterator end()   {return iterator(NULL);}
+    class chainlist_iterator;                                               /* iterator is only a pointer for this structure     */
+    chainlist_iterator begin() {return chainlist_iterator(firstNode);}      /* use pointer of this list to construct a iterator  */
+    chainlist_iterator end()   {return chainlist_iterator(NULL);}
     
 protected:
     void checkIndex(int theIndex) const;                                    /* if theIndex is invalid, throw illegal             */
@@ -272,7 +272,7 @@ ostream& operator << (ostream& out, const chain<T>& x)
 }
 
 template <class T>
-class iterator
+class chainlist_iterator
 {
 public:
     /************* type define ******************************************/
@@ -283,24 +283,24 @@ public:
     typedef T&                          reference;
 
     /*************** functions  ****************************************/
-    iterator(chainNode<T>* theNode = NULL) {node = theNode;}
+    chainlist_iterator(chainNode<T>* theNode = NULL) {node = theNode;}  /* construct a iterator point to theNode                 */
     
     T& operator * () const {return  node->element;}                     /* repeated load * and  -> for iterator                  */
     T* operator-> () const {return &node->element;}
     
-    iterator& operator ++ () {node = node->next; return *this;}         /* repeated load forward self increase (++)              */
-    iterator  operator ++ (int)                                         /* repeated load after the self increase (++)            */
+    chainlist_iterator& operator ++ (){node = node->next; return *this;}/* repeated load forward self increase (++)              */
+    chainlist_iterator  operator ++ (int)                               /* repeated load after the self increase (++)            */
     {
-        iterator old = *this;
+        chainlist_iterator old = *this;
         node = node->next;
         return old;
     }
     
-    bool operator != (const iterator right) const
+    bool operator != (const chainlist_iterator right) const
     {
         return node != right.node;
     }
-    bool operator == (const iterator right) const
+    bool operator == (const chainlist_iterator right) const
     {
         return node == right.node;
     }
