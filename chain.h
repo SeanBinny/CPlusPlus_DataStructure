@@ -18,8 +18,8 @@ struct chainNode
 
     /***** Method **********************************************************/
     chainNode() {}
-    chainNode(const T& element) {this->element = element;}                  /* initialize the data                                */
-    chainNode(const T& element, chainNode<T>* next)                         /* initialize the data and pointer                    */
+    chainNode(const T& element) {this->element = element;}                  /* initialize the data                              */
+    chainNode(const T& element, chainNode<T>* next)                         /* initialize the data and pointer                  */
     {
         this->element = element;
         this->next    = next;
@@ -29,14 +29,15 @@ struct chainNode
 
 /*************** Class definition ******************************************/
 template <class T>
-class chain : public linerList<T>
+class chain : public linerList<T>, public  extendedLinearlist<T>             /* inherit extendedLinearlist to get extend method  */
 {
 public:
-    chain(int initialCapacity = 10);                                        /* initialCapacity just for compatible with arraylist */
+    chain(int initialCapacity = 10);                                         /* initialCapacity just for compatible with arraylist*/
     chain(const chain<T>&);
     ~chain();
 
     /************ ADT method: **********************************************/
+    /*----------- from linearlist------------------------------------------*/
     T&   get(int theIndex) const;
     bool empty() const {return listSize == 0;}
     int  size() const {return listSize;}
@@ -46,6 +47,10 @@ public:
     void insert(int theIndex, const T& theElement);
     void output(ostream& out) const;
 
+    /*----------- from entendedLinearlist----------------------------------*/
+    void clear();
+    void push_back(const T& theElement);
+
     /************ Class custom: ********************************************/
     class chainlist_iterator;                                               /* iterator is only a pointer for this structure     */
     chainlist_iterator begin() {return chainlist_iterator(firstNode);}      /* use pointer of this list to construct a iterator  */
@@ -53,8 +58,10 @@ public:
     
 protected:
     void checkIndex(int theIndex) const;                                    /* if theIndex is invalid, throw illegal             */
-    chainNode<T>* firstNode;                                                /* point to the first node of linked list            */
-                                                                            /* fistNode = NULL means linked list is empty        */
+    chainNode<T>* firstNode;                                                /* point to the first node of linked list
+                                                                               fistNode = NULL means linked list is empty        */
+    chainNode<T>* lastNode;                                                 /* point to the last node of linked list
+                                                                               fistNode = NULL means linked list is empty        */
     int listSize;                                                           /* number of elements in the linked list             */
 };
 
@@ -73,7 +80,7 @@ chain<T>::chain(int initialCapacity)                                        /* i
         s << "Initial capacity = " << initialCapacity << " Must be > 0 ";
         throw illegalParameterValue(s.str());
     }
-    firstNode = NULL;
+    firstNode = lastNode  = NULL;
     listSize  = 0;
 }
 
@@ -91,7 +98,7 @@ chain<T>::chain(const chain<T>& theList)
     /*********** situation : empty ****************************************/
     if (listSize == 0)
     {
-        firstNode = NULL;
+        firstNode = lastNode  = NULL;
         return;
     }
 
@@ -108,6 +115,7 @@ chain<T>::chain(const chain<T>& theList)
         targetNode       = targetNode->next;
         sourceNode       = sourceNode->next;
     }
+    lastNode         = targetNode;
     targetNode->next = NULL;
 }
 
@@ -126,6 +134,7 @@ chain<T>::~chain()
         delete firstNode;
         firstNode = nextNode;
     }
+    lastNode = NULL;
 }
 
 /***************************************************************************
@@ -204,7 +213,7 @@ void chain<T>::erase(int theIndex)
     if (theIndex == 0)                                                      /* delete the first node                             */
     {
         deleteNode = firstNode;
-        firstNode  = firstNode->next;
+        firstNode  = firstNode->next;                                       /* connect target's next with firstNode              */
     }
     else                                                                    /* delete the inside nodes                           */
     {
@@ -212,7 +221,10 @@ void chain<T>::erase(int theIndex)
         for (int i = 0; i < theIndex-1; i++)
             p = p->next;                                                    /* now p point to the node in front of the target    */
         
-        deleteNode = p->next;                                               /* delete point to the target                        */
+        deleteNode = p->next;                                               /* now p->next is the target to delete               */
+        p->next    = p->next->next;                                         /* connect target's next with target's last          */
+        if (deleteNode == lastNode)
+            lastNode = p;                                                   /* update lastNode                                   */
     }
     listSize--;
     delete deleteNode;
@@ -231,20 +243,26 @@ void chain<T>::insert(int theIndex, const T &theElement)
     checkIndex(theIndex);
     
     if (theIndex == 0)
+    {
         firstNode = new chainNode<T>(theElement, /* next */ firstNode);
+        if (listSize == 0)
+            lastNode = firstNode;
+    }
     else
     {
         chainNode<T>* p = firstNode;
         for (int i = 0; i < theIndex-1; i++)
             p = p->next;                                                    /* now p point to the node in front of the target    */
         p->next = new chainNode<T>(theElement, p->next);                    /* use theElement and next pointer constor a node    */
+        if (listSize == theIndex)
+            lastNode = p->next;
     }
     listSize++;
 }
 
 /***************************************************************************
 * Name          : output
-* Descirpyion   : circle to output the chain list
+* Descirpyion   : put the list into the stream out.
 * Input         : 1.out : object of ostream to output
 * Output        : none
 ***************************************************************************/
@@ -269,6 +287,44 @@ ostream& operator << (ostream& out, const chain<T>& x)
 {
     x.output(out);
     return out;
+}
+
+/***************************************************************************
+* Name          : clear
+* Descirpyion   : delete all elements
+* Input         : none
+* Output        : none
+***************************************************************************/
+template <class T>
+void chain<T>::clear()
+{
+    while (firstNode != NULL)
+    {
+        chainNode<T>* nextNode = firstNode->next;
+        delete firstNode;
+        firstNode = nextNode;
+    }
+    listSize = 0;
+}
+
+/***************************************************************************
+* Name          : push_back
+* Descirpyion   : insert theElemnt at end of list
+* Input         : 1.theElement : element you want to insert at end of list
+* Output        : none
+***************************************************************************/
+template <class T>
+void chain<T>::push_back(const T &theElement)
+{
+    chainNode<T>* newNode = new chainNode<T>(theElement, NULL);            /* use theElement to construct the last node          */
+    if (firstNode == NULL)
+        firstNode = lastNode = newNode;
+    else
+    {
+        lastNode->next = newNode;
+        lastNode       = newNode;                                          /* update the last node                               */
+    }
+    listSize++;
 }
 
 template <class T>
