@@ -190,7 +190,7 @@ void arrayList<T>::insert(int theIndex, const T &theElement)
 
 /***************************************************************************
 * Name          : output
-* Descirpyion   : circle to output the chain list
+* Descirpyion   : put the list into the stream out.
 * Input         : 1.out : object of ostream to output
 * Output        : none
 ***************************************************************************/
