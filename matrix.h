@@ -248,20 +248,147 @@ ostream& operator<<(ostream& out, const Matrix<T>& m)
    return out;
 }
 
-/****************************************** Spacial Matrix (square matrix)*******************************************************/
+/****************************************** Special Matrix (square matrix)*******************************************************/
 template <class T>
-class diagonalMatrix
+class SpecialMatrix
 {
 public:
-    diagonalMatrix(int theN = 10);
-   ~diagonalMatrix() {delete [] element;}
+    virtual ~SpecialMatrix() {delete [] element;}
 
-    T get(int, int) const;
-    void set(int, int, const T&);
+    virtual  T get(int, int) const = 0;
+    virtual  void set(int, int, const T&) = 0;
 
-private:
+protected:
     int n;
     T *element;
 };
 
+/************* Diagonal Matrix *******************************************/
+template <class T>
+class diagonalMatrix : public SpecialMatrix<T>                            /*      -  X   0   0   0   0  -                        */
+{                                                                         /*      |  0   X   0   0   0  |                        */
+public:                                                                   /*      |  0   0   X   0   0  |                        */
+    diagonalMatrix(int theN = 10);                                        /*      |  0   0   0   X   0  |                        */
+   ~diagonalMatrix() {delete [] this->element;}                                 /*      -  0   0   0   0   X  -                        */
+
+    T get(int, int) const;
+    void set(int, int, const T &);
+};
+
+/***************************************************************************
+* Name          : diagonalMatrix
+* Descirpyion   : construct a diagonal matrix
+* Input         : 1.theN : size of matrix
+* Output        : none
+***************************************************************************/
+template <class T>
+diagonalMatrix<T>::diagonalMatrix(int theN)
+{
+    if (theN < 1)
+        throw illegalParameterValue("Matrix size must be > 0");
+
+    this->n       = theN;
+    this->element = new T [this->n];
+}
+
+/***************************************************************************
+* Name          : get
+* Descirpyion   : get an element whos index is (i,j)
+* Input         : 1. i      : row of index  2. j  : column of index
+* Output        : 1.element : element you want to find
+*               : 2. 0      : element can't find
+***************************************************************************/
+template <class T>
+T diagonalMatrix<T>::get(int i, int j) const
+{
+    if (i < 1 || j < 1 || i > this->n || j > this->n)
+        throw illegalParameterValue("Index out of range");
+
+    if (i == j)
+        return this->element[i-1];
+    else
+        return 0;
+}
+
+/***************************************************************************
+* Name          : set
+* Descirpyion   : set an element whos index is (i,j)
+* Input         : 1. i       : row of index  2. j  : column of index
+*               : 3.newValue : new element you want to replace
+* Output        : none
+***************************************************************************/
+template <class T>
+void diagonalMatrix<T>::set(int i, int j, const T& newValue)
+{
+    if (i < 1 || j < 1 || i > this->n || j > this->n)
+        throw illegalParameterValue("Index out of range");
+
+    if (i == j)                                                            /* index only in diagonal can replace                */
+        this->element[i-1] = newValue;
+    else
+        throw illegalParameterValue("nodiagonal elements must be zero");
+}
+
+/************* tripl diagonal Matrix **************************************/
+template <class T>
+class tridiagonalMatrix : public SpecialMatrix<T>                          /*      -  X   X   0   0   0  -                      */
+{                                                                          /*      |  X   X   X   0   0  |                      */
+public:                                                                    /*      |  0   X   X   X   0  |                      */
+    tridiagonalMatrix(int theN = 10);                                      /*      |  0   0   X   X   X  |                      */
+   ~tridiagonalMatrix(){delete [] this->element;}                          /*      -  0   0   0   X   X  -                      */
+
+    T get(int, int) const;
+    void set(int, int, const T &);
+};
+
+/***************************************************************************
+* Name          : get
+* Descirpyion   : get an element whos index is (i,j)
+* Input         : 1. i      : row of index  2. j  : column of index
+* Output        : 1.element : element you want to find
+*               : 2. 0      : element can't find
+***************************************************************************/
+template <class T>
+T tridiagonalMatrix<T>::get(int i, int j) const
+{
+    if (i < 1 || j < 1 || i > this->n || j > this->n)
+        throw illegalParameterValue("Index out of range");
+
+    switch (i-j)
+    {
+        case 1 : return this->element[i-2];                                /* Lower diagonal                                     */
+        case 2 : return this->element[this->n+i-2];                        /* Main  diagonal                                     */
+        case 3 : return this->element[2*this->n+i-2];                      /* Upper diagonal                                     */
+        default: return 0;
+    }
+}
+
+/***************************************************************************
+* Name          : set
+* Descirpyion   : set an element whos index is (i,j)
+* Input         : 1. i       : row of index  2. j  : column of index
+*               : 3.newValue : new element you want to replace
+* Output        : none
+***************************************************************************/
+template <class T>
+void tridiagonalMatrix<T>::set(int i, int j, const T& newValue)
+{
+    if (i < 1 || j < 1 || i > this->n || j > this->n)
+        throw illegalParameterValue("Index out of range");
+
+    switch (i-j)
+    {
+        case 1 : this->element[i-2]     = newValue;                        /* Lower diagonal                                     */
+        case 2 : this->element[this->n+i-2 ]  = newValue;                  /* Main  diagonal                                     */
+        case 3 : this->element[2*this->n+i-2] = newValue;                  /* Upper diagonal                                     */
+        default:  throw illegalParameterValue("nodiagonal elements "
+                                              "must be zero");
+    }
+}
+
 #endif // MATRIX_H
+
+
+/* lower Triangular Matrix
+ * Upper Triangular Matrix
+ * Symmetric matrix           hanen't done      */
