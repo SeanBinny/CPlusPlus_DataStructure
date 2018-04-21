@@ -29,7 +29,7 @@ class extendedLinearlist : linerList<T>                                      /* 
 public :
     virtual ~extendedLinearlist() {}
     virtual void clear() = 0;                                              /* clear all elements of list                          */
-    virtual void push_back(const T& theElement);                           /* insert theElemnt at end of list                     */
+    virtual void push_back(const T& theElement) = 0;                       /* insert theElemnt at end of list                     */
 };
 
 /***************************************************************************

@@ -8,7 +8,7 @@ using namespace std;
 template <class T>
 class Matrix
 {
-    friend ostream& operator << (ostream&, const matrix<T>&);
+    friend ostream& operator << (ostream&, const Matrix<T>&);
 public:
     Matrix(int theRows = 0, int theColums = 0);
     Matrix(const Matrix<T>&);
@@ -87,7 +87,7 @@ Matrix<T>& Matrix<T>::operator =(const Matrix<T>& m)
         delete [] element;                                                  /* delete original array                             */
         theRows    = m.theRows;
         theColumns = m.theColumns;
-        element    = new T [theRows * theColums];
+        element    = new T [theRows * theColumns];
 
         copy(m.element, m.element+theRows*theColumns,
              element);
@@ -117,7 +117,7 @@ T& Matrix<T>::operator ()(int i, int j) const
 * Output        : 1.w  : return a summation matrix
 ***************************************************************************/
 template <class T>
-Matrix<T> Matrix<T>::operator + (const Matrix<T>& m) const
+Matrix<T> Matrix<T>::operator +(const Matrix<T>& m)
 {
     if (theRows != m.theRows || theColumns != m.theColumns)                /* size not match                                     */
         throw illegalParameterValue("Size doesn't match");
@@ -127,6 +127,51 @@ Matrix<T> Matrix<T>::operator + (const Matrix<T>& m) const
         w.element[i] = element[i] + m.element[i];
 
     return w;
+}
+
+/***************************************************************************
+* Name          : operator +
+* Descirpyion   : overload + to ensure usage is consistent with math
+* Input         : none
+* Output        : 1.    : return this matrix
+***************************************************************************/
+template <class T>
+Matrix<T> Matrix<T>::operator +() const
+{
+    return *this;
+}
+
+/***************************************************************************
+* Name          : operator -
+* Descirpyion   : overload - to ensure usage is consistent with math
+* Input         : 1.m  : another matrix you want to minus
+* Output        : 1.w  : return a minus matrix
+***************************************************************************/
+template <class T>
+Matrix<T> Matrix<T>::operator -(const Matrix<T>& m)
+{
+    if (theRows != m.theRows || theColumns != m.theColumns)                /* size not match                                     */
+        throw illegalParameterValue("Size doesn't match");
+
+    Matrix<T> w(theRows, theColumns);
+    for (int i = 0; i < theRows*theColumns; i++)
+        w.element[i] = element[i] - m.element[i];
+
+    return w;
+}
+
+/***************************************************************************
+* Name          : operator -
+* Descirpyion   : overload - to ensure usage is consistent with math
+* Input         : none
+* Output        : 1.    : return this matrix
+***************************************************************************/
+template <class T>
+Matrix<T> Matrix<T>::operator -() const
+{
+    for (int i; i < theRows*theColumns; i++)
+        this->element[i] = -this->element[i];
+    return *this;
 }
 
 /***************************************************************************
@@ -142,8 +187,9 @@ Matrix<T> Matrix<T>::operator *(const Matrix<T>& m)
         throw illegalParameterValue("Size doesn't match");
 
     Matrix<T> w(theRows, m.theColumns);                                    /* define a result matrix                             */
-
-    int ct = 0, cm = 0, cw = 0;                                            /* they are cursor of   *this   m    w                */
+    int ct = 0, cm = 0, cw = 0;                                            /* they are cursor of   *this   m  w;  w = this * m and
+                                                                              they are 1D cursor of element array meanwhile 1D
+                                                                              cursor means it can index by row (like i.k.j order)*/
     for (int i = 1; i <= theRows; i++)
     {
         for (int j = 1; j <= m.theColumns; j++)
@@ -151,19 +197,71 @@ Matrix<T> Matrix<T>::operator *(const Matrix<T>& m)
             T sum = element[ct]*m.element[cm];                             /* accumulate first item                              */
             for (int k = 2; k <= theColumns; k++)                          /* accumulate all remaining items, so it start from 2 */
             {
-                ct++;
-                cm  += m.theColumns;
+                ct++;                                                      /* the next element in the i row                      */
+                cm  += m.theColumns;                                       /* the next element in the j column                   */
                 sum += element[ct]*m.element[cm];
             }
-            w.element[cw++] = sum;
-            ct  -= theColumns - 1;
-            sum  =  0;
+            w.element[cw++] = sum;                                         /* save in w(i,j)                                     */
+            ct -= theColumns - 1;                                          /* restart from the next row and this column          */
+            cm  = j;
         }
-        ct += theColumns;
+        ct += theColumns;                                                  /* restart from the next row and the first column     */
         cm  = 0;
     }
     return w;
 }
 
+/***************************************************************************
+* Name          : operator +=
+* Descirpyion   : overload += to increment all elements of *this by x
+* Input         : 1.x   : increment all elements of *this by x
+* Output        : 1.    : this matrix
+***************************************************************************/
+template <class T>
+Matrix<T>& Matrix<T>::operator +=(const T& x)
+{
+    // Increment all elements of *this by x.
+   for (int i = 0; i < theRows*theColumns; i++)
+       element[i] += x;
+   return *this;
+}
+
+/***************************************************************************
+* Name          : operator <<
+* Descirpyion   : overload << to put matrix m into the stream out.
+* Input         : 1.out : object of ostream to output
+*               : 2.m   : matrix you want to output
+* Output        : 1.out : for continuous call
+***************************************************************************/
+template<class T>
+ostream& operator<<(ostream& out, const Matrix<T>& m)
+{
+   int k = 0;  // index into element array                                 /* element is 1D array so we need a k (1D index)     */
+   for (int i = 0; i < m.theRows; i++)
+   {
+      for (int j = 0; j < m.theColumns; j++)
+         out << m.element[k++] << "  ";
+
+      out << endl;
+   }
+
+   return out;
+}
+
+/****************************************** Spacial Matrix (square matrix)*******************************************************/
+template <class T>
+class diagonalMatrix
+{
+public:
+    diagonalMatrix(int theN = 10);
+   ~diagonalMatrix() {delete [] element;}
+
+    T get(int, int) const;
+    void set(int, int, const T&);
+
+private:
+    int n;
+    T *element;
+};
 
 #endif // MATRIX_H
