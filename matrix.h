@@ -303,7 +303,6 @@ T diagonalMatrix<T>::get(int i, int j) const
 {
     if (i < 1 || j < 1 || i > this->n || j > this->n)
         throw illegalParameterValue("Index out of range");
-
     if (i == j)
         return this->element[i-1];
     else
