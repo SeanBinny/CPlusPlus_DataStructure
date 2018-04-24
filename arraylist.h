@@ -157,7 +157,7 @@ void arrayList<T>::erase(int theIndex)
     copy(element+theIndex+1, element+listSize, element+theIndex);          /* using copy to take the elements behind a step
                                                                               forward                                           */
 
-    element[--listSize].~T();
+    element[--listSize].~T();                                              /* destructor a T struct space                       */
 
     if (listSize < arrayLength/4 )                                         /* when listSize < arrayLength/4 can reduce 1/2      */
         reduceCapacity(Max(10, arrayLength/2));

@@ -3,6 +3,7 @@
 #include "arraylist.h"
 #include "chain.h"
 
+/*************** ADT class stack definition ***********************/
 template <class T>
 class stack
 {
@@ -17,20 +18,24 @@ public:
 };
 
 
+/************** inherit class stack******************************************/
 template <class T>
 class derivedArrayStack : public  stack<T>,
-                          private arrayList<T>
+                          private arrayList<T>                               /* inherit by private, we can hide the fuction detail
+                                                                                do not need                                      */
 {
 public:
     derivedArrayStack(int initialCapity = 10)
-        : arrayList(initialCapity) {}
-    bool empty() const {return arrayList<T>::empty();}
-    int  size() const  {return arrayList<T>::size();}
+        : arrayList(initialCapity) {}                                        /* arraylist is not a abstrct class                 */
 
-    T& top()
+    /*--------- from stack -------------------------------------------------*/
+    bool empty() const {return arrayList<T>::empty();}                       /* convert private functions inherit from the class */
+    int  size() const  {return arrayList<T>::size();}                        /* arraylist to public functions                    */
+
+    T& top()                                                                 /* return  an element in top of stack               */
     {
-        try
-        {
+        try                                                                  /* use try-catch to convert illegal type array empty*/
+        {                                                                    /* to type stack empty                              */
             return get(arrayList<T>::size()-1);
         }
         catch (illegalParameterValue)
@@ -38,7 +43,7 @@ public:
             throw illegalParameterValue("stack is empty!");
         }
     }
-    void pop()
+    void pop()                                                               /* erase an element in top of stack                 */
     {
         try
         {
@@ -49,17 +54,21 @@ public:
             throw illegalParameterValue("stack is empty!");
         }
     }
-    void push(const T &theElement)
+    void push(const T &theElement)                                          /* add an element to top of stack                    */
     {
-        insert(arrayList<T>::size()), theElement;
+        insert(arrayList<T>::size(), theElement);
     }
 };
 
+
+/************** re-create class stack (type array)**************************/
 template <class T>
 class arrayStack : public stack<T>
 {
 public:
     arrayStack(int initialCapacity = 10);
+
+    /*--------- from stack -----------------------------------------------*/
    ~arrayStack() {delete [] stack;}
     bool empty() const {return stackTop == -1;}
     int  size() const  {return stackTop + 1;}
@@ -75,15 +84,22 @@ public:
         if (stackTop == -1)
             throw illegalParameterValue("stack is empty!");
 
-        stack[stackTop--].~T();
+        stack[stackTop--].~T();                                             /* destructor a T struct space (only for type array) */
     }
     void push(const T& theElement);
 private:
     int stackTop;
     int arrayLength;
-    T  *stack;
+    T  *stack_;                                                             /* array to save element, add '_ ' to distinguish with
+                                                                               STL stack                                         */
 };
 
+/***************************************************************************
+* Name          : arrayStack
+* Descirpyion   : constructor
+* Input         : 1.initialCapacity : initial capacity of this stack
+* Output        : none
+***************************************************************************/
 template<class T>
 arrayStack<T>::arrayStack(int initialCapacity)
 {
@@ -94,33 +110,51 @@ arrayStack<T>::arrayStack(int initialCapacity)
              " Must be > 0";
         throw illegalParameterValue(s.str());
     }
-    arrayLength = initialCapacity;
-    stack       = new T [arrayLength];
+    arrayLength = initialCapacity;                                          /* constor a empty stack                             */
+    stack_      = new T [arrayLength];
     stackTop    = -1;
 }
 
+/***************************************************************************
+* Name          : push
+* Descirpyion   : add elelment in top of stack
+* Input         : 1.theElement : element you want to add
+* Output        : none
+***************************************************************************/
 template <class T>
 void arrayStack<T>::push(const T &theElement)
 {
-    if (stackTop == arrayLength-1)
+    if (stackTop == arrayLength-1)                                         /* if full, doubled it                                */
     {
-        changeLength1D(stack, arrayLength, 2*arrayLength);
+        changeLength1D(stack_, arrayLength, 2*arrayLength);
         arrayLength *= 2;
     }
 
-    stack[++stackTop] = theElement;
+    stack_[++stackTop] = theElement;
 }
 
+
+/************** re-create class stack (type chian)************************/
 template <class T>
 class linkedStack : public stack<T>
 {
 public:
     linkedStack(int initialCapacity = 10)
     {
+        if (initialCapacity < 1)
+        {
+            ostringstream s;
+            s << " Tnitial capacity = " << initialCapacity <<
+                 " Must be > 0";
+            throw illegalParameterValue(s.str());
+        }
         stackTop  = NULL;
         stackSize = 0;
-    }
-   ~linkedStack();
+    } 
+
+  ~linkedStack();
+
+    /*--------- from stack -----------------------------------------------*/
     bool empty() const {return stackSize == 0;}
     int  size()  const {return stackSize;}
 
@@ -142,6 +176,12 @@ private:
     int stackSize;
 };
 
+/***************************************************************************
+* Name          : ~chain
+* Descirpyion   : destructor a stack chain list
+* Input         : none
+* Output        : none
+***************************************************************************/
 template <class T>
 linkedStack<T>::~linkedStack()
 {
@@ -153,6 +193,12 @@ linkedStack<T>::~linkedStack()
     }
 }
 
+/***************************************************************************
+* Name          : pop
+* Descirpyion   : erase elelment in top of stack
+* Input         : none
+* Output        : none
+***************************************************************************/
 template <class T>
 void linkedStack<T>::pop()
 {
