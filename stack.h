@@ -3,12 +3,12 @@
 #include "arraylist.h"
 #include "chain.h"
 
-/*************** ADT class stack definition ***********************/
+/*************** ADT class stack definition *********************************/
 template <class T>
 class stack
 {
 public:
-    virtual ~stack();
+    virtual ~stack() {}
     virtual  bool empty() const = 0;
     virtual  int  size() const = 0;
 
@@ -26,7 +26,7 @@ class derivedArrayStack : public  stack<T>,
 {
 public:
     derivedArrayStack(int initialCapity = 10)
-        : arrayList(initialCapity) {}                                        /* arraylist is not a abstrct class                 */
+        : arrayList<T>(initialCapity) {}                                     /* arraylist is not a abstrct class                 */
 
     /*--------- from stack -------------------------------------------------*/
     bool empty() const {return arrayList<T>::empty();}                       /* convert private functions inherit from the class */
@@ -69,22 +69,22 @@ public:
     arrayStack(int initialCapacity = 10);
 
     /*--------- from stack -----------------------------------------------*/
-   ~arrayStack() {delete [] stack;}
+   ~arrayStack() {delete [] stack_;}
     bool empty() const {return stackTop == -1;}
-    int  size() const  {return stackTop + 1;}
+    int  size() const  {return stackTop + 1;}                               /* because stack is from stack[0] to stack[stack]    */
 
     T& top()
     {
        if (stackTop == -1)
            throw illegalParameterValue("stack is empty!");
-       return stack[stackTop];
+       return stack_[stackTop];
     }
     void pop()
     {
         if (stackTop == -1)
             throw illegalParameterValue("stack is empty!");
 
-        stack[stackTop--].~T();                                             /* destructor a T struct space (only for type array) */
+        stack_[stackTop--].~T();                                            /* destructor a T struct space (only for type array) */
     }
     void push(const T& theElement);
 private:
@@ -177,7 +177,7 @@ private:
 };
 
 /***************************************************************************
-* Name          : ~chain
+* Name          : ~linkedStack
 * Descirpyion   : destructor a stack chain list
 * Input         : none
 * Output        : none

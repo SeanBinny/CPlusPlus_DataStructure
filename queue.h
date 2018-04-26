@@ -20,14 +20,15 @@ public:
     virtual  void push(const T& theElement) = 0;
 };
 
-/************** inherit class stack ***************************************/
+/************** re-create class queue (type array)************************/
 template <class T>
-class arrayQueue : public queue                                            /* this class queue is definited for circle queue    */
+class arrayQueue : public queue<T>                                        /* this class queue is definited for circle queue    */
 {
 public:
     arrayQueue(int initialCapacity = 10) ;
    ~arrayQueue() {delete [] queue_;}
 
+    /*--------- from queue -----------------------------------------------*/
     bool empty() const {return queueFront == queueBack;}
     int  size()  const
     {
@@ -57,6 +58,7 @@ public:
         queue_[queueFront].~T();
         arrayLength--;
     }
+    void push(const T &theElement);
 private:
     int arrayLength,
         queueFront,                                                        /* queueFront point to the position in front of the
@@ -137,4 +139,105 @@ void arrayQueue<T>::push(const T &theElement)
     queue_[queueBack] = theElement;
 }
 
+
+/************** re-create class queue (type chian)************************/
+template <class T>
+class linkedQueue : public queue<T>
+{
+public:
+    linkedQueue(int initialCapacity = 10)
+    {
+        if (initialCapacity < 1)
+        {
+            ostringstream s;
+            s << " Tnitial capacity = " << initialCapacity <<
+                 " Must be > 0";
+            throw illegalParameterValue(s.str());
+        }
+        queueFront = NULL;
+        queueBack  = NULL;
+        queueSize = 0;
+    }
+
+  ~linkedQueue();
+
+    /*--------- from queue -----------------------------------------------*/
+    bool empty() const {return queueSize == 0;}
+    int  size()  const {return queueSize;}
+
+    T& front()
+    {
+        if (queueSize == 0)
+            throw illegalParameterValue("queue is empty!");
+
+        return queueFront->element;
+    }
+    T& back()
+    {
+        if (queueSize == 0)
+            throw illegalParameterValue("queue is empty!");
+        return queueBack->element;
+    }
+    void pop();
+    void push(const T &theElement);
+
+private:
+    chainNode<T>* queueFront;                                              /* point to the first node of the queue              */
+    chainNode<T>* queueBack;                                               /* point to the last node of the queue               */
+    int queueSize;
+};
+
+/***************************************************************************
+* Name          : ~linkedQueue
+* Descirpyion   : destructor a stack chain list
+* Input         : none
+* Output        : none
+***************************************************************************/
+template <class T>
+linkedQueue<T>::~linkedQueue()
+{
+    while (queueFront != NULL)
+    {
+       chainNode<T>* nextNode = queueFront->next;
+       delete queueFront;
+       queueFront = nextNode;
+    }
+}
+
+/***************************************************************************
+* Name          : push
+* Descirpyion   : add an element in the tail of queue
+* Input         : 1.theElement  : element you want to add
+* Output        : none
+***************************************************************************/
+template <class T>
+void linkedQueue<T>::push(const T &theElement)
+{
+    chainNode<T>* newNode = new chainNode<T>(theElement, NULL);
+
+    if (queueSize == 0)
+        queueFront = newNode;
+    else
+        queueBack  = newNode;
+
+    queueSize++;
+}
+
+/***************************************************************************
+* Name          : pop
+* Descirpyion   : erase elelment in top of queue
+* Input         : none
+* Output        : none
+***************************************************************************/
+template <class T>
+void linkedQueue<T>::pop()
+{
+    if (queueFront == NULL)
+        throw illegalParameterValue("queue is empty!");
+
+    chainNode<T>* nextNode = queueFront;
+    delete queueFront;
+    queueFront = nextNode;
+    queueSize--;
+}
 #endif // QUEUE_H
