@@ -28,7 +28,7 @@ public:
     arrayQueue(int initialCapacity = 10) ;
    ~arrayQueue() {delete [] queue_;}
 
-    /*--------- from queue -----------------------------------------------*/
+    /*--------- from queue ----------------------------------------------*/
     bool empty() const {return queueFront == queueBack;}
     int  size()  const
     {

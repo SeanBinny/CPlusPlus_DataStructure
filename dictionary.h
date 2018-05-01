@@ -3,6 +3,11 @@
 #include <iostream>
 using namespace std;
 
+/*-------------------------------------------------------------------------*
+* Struct  Name  : pair
+* Descirpyion   : data pair for dictionary
+* Data    Field : 1.keywords     2.value
+*--------------------------------------------------------------------------*/
 template <class K, class E>
 struct pair
 {
@@ -10,6 +15,7 @@ struct pair
     E value;
 };
 
+/*************** ADT class dictionary definition ***************************/
 template <class K, class E>
 class dictionary
 {
@@ -24,6 +30,12 @@ public :
     virtual  void insert(const pair<const K, E>&) = 0;
 };
 
+/*-------------------------------------------------------------------------*
+* Struct  Name  : pairNode
+* Descirpyion   : node for pairs of dictionary
+* Data    Field : element: belong to struct pair
+* Pointer Field : next   : point to the next node
+*--------------------------------------------------------------------------*/
 template <class K, class E>
 struct pairNode
 {
@@ -38,13 +50,15 @@ struct pairNode
         : element(theElement), next(theNext) {}
 };
 
+/*************** Class definition ******************************************/
 template <class K, class E>
-class sortedDicChain : public dictionary<K, E>
+class sortedDicChain : public dictionary<K, E>                              /* class to sort and save dictionary data in a chain*/
 {
 public:
     sortedDicChain() {dictionarySize = 0; firstNode = NULL;}
    ~sortedDicChain();
 
+    /*--------- from dictionary ------------------------------------------*/
     bool empty() const {return dictionarySize == 0;}
     int  size() const {return dictionarySize;}
     void erase(const K &) const;
@@ -57,6 +71,12 @@ protected:
     int             dictionarySize;
 };
 
+/***************************************************************************
+* Name          : ~sortedDicChain
+* Descirpyion   : destructor a sorted dictionary chain list
+* Input         : none
+* Output        : none
+***************************************************************************/
 template <class K, class E>
 sortedDicChain<K , E>::~sortedDicChain()
 {
@@ -68,59 +88,75 @@ sortedDicChain<K , E>::~sortedDicChain()
     }
 }
 
+/***************************************************************************
+* Name          : erase
+* Descirpyion   : delete an pair whos keywords is theKey
+* Input         : 1.theKey : keywords of element you want to delete
+* Output        : none
+***************************************************************************/
 template <class K, class E>
 bool sortedDicChain<K, E>::erase(const K& theKey) const
 {
     pairNode<K, E>* p  = firstNode,
-                  * tp = NULL;
+                  * tp = NULL;                                             /* tp trails pointer p                               */
 
     while (p != NULL && p->element.keywords < theKey)
     {
         tp = p;
-        p  = p->next;
+        p  = p->next;                                                      /* now ,p point to the target, tp point to last pair */
     }
 
-    if (p != NULL && p->element.keywords == theKey)
+    if (p != NULL && p->element.keywords == theKey)                        /* confirm p point to the target                     */
     {
-        if (tp == NULL)
+        if (tp == NULL)                                                    /* delete the first pair                             */
             firstNode = p->next;
         else
-            tp->next  = p->next;
+            tp->next  = p->next;                                           /* now pointer tp pick up the next element           */
 
         delete p;
         dictionarySize--;
     }
 }
 
+/***************************************************************************
+* Name          : insert
+* Descirpyion   : insert a data pair
+* Input         : 1.thePair   : the pair you want to insert
+* Output        : none
+***************************************************************************/
 template <class K, class E>
 void sortedDicChain<K, E>::insert(const pair<const K, E>& thePair)
 {
     pairNode<K, E>* p  = firstNode,
-                  * tp = NULL;
+                  * tp = NULL;                                             /* tp trails pointer p                               */
 
     while (p != NULL && p->element.keywords < thePair.keywords)
     {
         tp = p;
-        p  = p->next;
+        p  = p->next;                                                      /* now ,p point to the target, tp point to last pair */
     }
 
-    if (p != NULL && p->element.keywords == thePair.keywords)
+    if (p != NULL && p->element.keywords == thePair.keywords)              /* case for keywords existed, modify it directly     */
     {
         p->element.value = thePair.value;
         return;
     }
 
-    pairNode<K, E> *newNode = new pairNode<K, E>(thePair, p);
+    pairNode<K, E> *newNode = new pairNode<K, E>(thePair, p);              /* use thePair and p to consructor a node to insert  */
+    if (tp == NULL)                                                        /* insert the head node                              */
+        firstNode = newNode;
+    else                                                                   /* insert the normal nodes                           */
+        tp->next  = newNode;
 
-    if (tp == NULL)
-        firstNode = p->next;
-    else
-        tp->next  = p->next;
-
-    delete p;
-    dictionarySize--;
+    dictionarySize++;
 }
 
+/***************************************************************************
+* Name          : find
+* Descirpyion   : find the pair whos keywords is theKey
+* Input         : 1.theKey   : keywords of the pair
+* Output        : none
+***************************************************************************/
 template <class K, class E>
 pair<const K, E>* sortedDicChain<K, E>::find(const K& theKey) const
 {
@@ -131,9 +167,9 @@ pair<const K, E>* sortedDicChain<K, E>::find(const K& theKey) const
         currentNode = currentNode->next;
 
     if (currentNode != NULL && currentNode->element.keywords == theKey)
-        return &currentNode->element;
+        return &currentNode->element;                                     /* element has been found                             */
 
-    return NULL;
+    return NULL;                                                          /* element did not find                               */
 }
 #endif // DICTIONARY_H
 
