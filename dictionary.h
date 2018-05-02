@@ -155,7 +155,7 @@ void sortedDicChain<K, E>::insert(const pair<const K, E>& thePair)
 * Name          : find
 * Descirpyion   : find the pair whos keywords is theKey
 * Input         : 1.theKey   : keywords of the pair
-* Output        : none
+* Output        : 1.element  : element found   2.NULL : element not found
 ***************************************************************************/
 template <class K, class E>
 Pair<const K, E>* sortedDicChain<K, E>::find(const K& theKey) const
