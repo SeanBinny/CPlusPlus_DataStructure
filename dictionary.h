@@ -9,7 +9,7 @@ using namespace std;
 * Data    Field : 1.keywords     2.value
 *--------------------------------------------------------------------------*/
 template <class K, class E>
-struct pair
+struct Pair
 {
     K keywords;
     E value;
@@ -24,10 +24,10 @@ public :
 
     virtual  bool empty() const = 0;
     virtual  int  size() const = 0;
-    virtual  pair<const K, E>* find(const K&) const = 0;
+    virtual  Pair<const K, E>* find(const K&) const = 0;
     virtual  void erase(const K&) const = 0;
 
-    virtual  void insert(const pair<const K, E>&) = 0;
+    virtual  void insert(const Pair<const K, E>&) = 0;
 };
 
 /*-------------------------------------------------------------------------*
@@ -39,7 +39,7 @@ public :
 template <class K, class E>
 struct pairNode
 {
-    typedef pair<const K, E> pairType;
+    typedef Pair<const K, E> pairType;
 
     pairType         element;
     pairNode<K, E>*  next;
@@ -61,9 +61,9 @@ public:
     /*--------- from dictionary ------------------------------------------*/
     bool empty() const {return dictionarySize == 0;}
     int  size() const {return dictionarySize;}
-    void erase(const K &) const;
-    pair<const K, E>* find(const K &) const;
+    Pair<const K, E>* find(const K &) const;
 
+    void erase (const K &);
     void insert(const pair<const K, E> &);
 
 protected:
@@ -95,7 +95,7 @@ sortedDicChain<K , E>::~sortedDicChain()
 * Output        : none
 ***************************************************************************/
 template <class K, class E>
-bool sortedDicChain<K, E>::erase(const K& theKey) const
+void sortedDicChain<K, E>::erase(const K& theKey)
 {
     pairNode<K, E>* p  = firstNode,
                   * tp = NULL;                                             /* tp trails pointer p                               */
@@ -158,7 +158,7 @@ void sortedDicChain<K, E>::insert(const pair<const K, E>& thePair)
 * Output        : none
 ***************************************************************************/
 template <class K, class E>
-pair<const K, E>* sortedDicChain<K, E>::find(const K& theKey) const
+Pair<const K, E>* sortedDicChain<K, E>::find(const K& theKey) const
 {
     pairNode<K, E>* currentNode = firstNode;
 
